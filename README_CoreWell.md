@@ -54,8 +54,8 @@ Built on the MVC model:
 - Add database integration for health records
 - Implement user login and session management
 
-## 📷 Screenshots
-_Include UI screenshots here (optional)_
+## System Design & Logic
+Before coding, I mapped out the user journey and system logic to ensure a seamless experience.
+![App Flowchart](./App_Flowchart.png)
 
-## 📄 License
-MIT License (or your own license)
+
