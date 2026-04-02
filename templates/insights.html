@@ -1,0 +1,814 @@
+{% extends "layout.html" %}
+
+{% block title %}AI Health Insights - CoreWell{% endblock %}
+
+{% block header %}AI Health Insights{% endblock %}
+
+{% block styles %}
+    <style>
+    .insights-container {
+        padding: 1.5rem;
+        max-width: 1200px;
+            margin: 0 auto;
+        }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .insights-card {
+            background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+    .card-header {
+            display: flex;
+            align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-icon {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        color: #333;
+        font-weight: 600;
+        }
+
+        .chart-container {
+        height: 300px;
+        margin-top: 1rem;
+    }
+
+    .ai-recommendation {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        box-shadow: var(--card-shadow);
+    }
+
+    .recommendation-header {
+            display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .recommendation-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        background: rgba(64, 224, 208, 0.1);
+        padding: 0.5rem;
+        border-radius: 50%;
+    }
+
+    .recommendation-title {
+        font-size: 1.3rem;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .recommendation-content {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .insights-container {
+            padding: 1rem;
+        }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="insights-container">
+    <div class="page-header">
+        <h1>AI Health Insights</h1>
+        <button class="share-btn" id="shareBtn">
+            <img src="{{ url_for('static', filename='images/share.png') }}" alt="Share" class="share-icon">
+        </button>
+    </div>
+    <div class="greeting-section">
+        <div class="greeting-content">
+            <img src="/static/images/icons8-heart-health-32.png" alt="Health Streak" class="greeting-icon">
+            <div class="greeting-text">
+                <h2>Hi Bill</h2>
+                <p>You've been tracking your health for <span class="streak-count">45</span> days</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="insights-grid">
+        <div class="insight-card">
+            <h2 class="card-title">Daily Exercise Duration</h2>
+            <div class="chart-container">
+                <canvas id="exerciseChart"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <h2 class="card-title">Sleep Patterns</h2>
+            <div class="chart-container">
+                <canvas id="sleepChart"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <h2 class="card-title">Blood Glucose</h2>
+            <div class="chart-container">
+                <canvas id="glucoseChart"></canvas>
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <h2 class="card-title">Mood Distribution</h2>
+            <div class="chart-container">
+                <canvas id="moodChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="ai-recommendation">
+        <div class="recommendation-header">
+            <div class="recommendation-icon">🤖</div>
+            <h2 class="recommendation-title">AI Health Recommendations</h2>
+        </div>
+        <div class="recommendation-content">
+            <p>Based on your recent activity and health data, our AI has generated personalized recommendations to help you achieve your wellness goals.</p>
+            <ul>
+                <li>Increase daily steps by 2000 to reach your weekly target</li>
+                <li>Maintain consistent sleep schedule between 10 PM - 6 AM</li>
+                <li>Consider adding 2 more strength training sessions per week</li>
+                <li>Stay hydrated with at least 2L of water daily</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="professional-reports">
+        <div class="reports-header">
+            <img src="/static/images/icons8-premium-32.png" alt="Premium" class="premium-icon">
+            <h2 class="reports-title">Professional Reports</h2>
+                </div>
+        <div class="reports-grid">
+            <div class="report-card">
+                <h3>Comprehensive Health Assessment</h3>
+                <p class="report-date">Generated on April 4, 2024</p>
+                <p class="report-summary">Detailed analysis of your health metrics, including cardiovascular fitness, metabolic health, and sleep quality.</p>
+                <a href="#" class="report-link" onclick="showPremiumModal(event)">View Full Report <span>→</span></a>
+            </div>
+            <div class="report-card">
+                <h3>Nutrition & Diet Analysis</h3>
+                <p class="report-date">Generated on April 3, 2024</p>
+                <p class="report-summary">Expert evaluation of your dietary patterns, macro/micronutrient balance, and personalized meal recommendations.</p>
+                <a href="#" class="report-link" onclick="showPremiumModal(event)">View Full Report <span>→</span></a>
+            </div>
+            <div class="report-card">
+                <h3>Mental Wellness Report</h3>
+                <p class="report-date">Generated on April 2, 2024</p>
+                <p class="report-summary">Professional assessment of your stress levels, mood patterns, and mental well-being strategies.</p>
+                <a href="#" class="report-link" onclick="showPremiumModal(event)">View Full Report <span>→</span></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Premium Modal -->
+<div id="premiumModal" class="premium-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <img src="/static/images/icons8-premium-32.png" alt="Premium" class="premium-icon">
+            <h2>Premium Feature</h2>
+            <button class="close-button" onclick="closePremiumModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>This feature is available exclusively for Premium members.</p>
+            <p>Upgrade your account to access:</p>
+            <ul>
+                <li>Detailed professional health reports</li>
+                <li>Personalized wellness recommendations</li>
+                <li>Advanced health analytics</li>
+                <li>Expert consultation services</li>
+            </ul>
+            <button class="upgrade-button" onclick="redirectToPremium()">Upgrade to Premium</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.insights-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.insight-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+    border-color: #40E0D0;
+    box-shadow: 0 5px 15px rgba(64, 224, 208, 0.2);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+.insight-card:hover .card-title {
+    color: #40E0D0;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+@media (max-width: 992px) {
+    .insights-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .insights-container {
+        padding: 1rem;
+        padding-bottom: 80px;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .insight-card {
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+}
+
+.professional-reports {
+    margin-top: 2rem;
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reports-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(64, 224, 208, 0.2);
+}
+
+.premium-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.reports-title {
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.report-card {
+    background: rgba(64, 224, 208, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(64, 224, 208, 0.2);
+    transition: all 0.3s ease;
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(64, 224, 208, 0.15);
+    border-color: #40E0D0;
+}
+
+.report-card h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.report-date {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.report-summary {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.report-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #40E0D0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: gap 0.3s ease;
+}
+
+.report-link:hover {
+    gap: 0.75rem;
+}
+
+.report-link span {
+    transition: transform 0.3s ease;
+}
+
+.report-link:hover span {
+    transform: translateX(3px);
+}
+
+@media (max-width: 992px) {
+    .reports-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .professional-reports {
+        padding: 1.5rem;
+        margin-bottom: 80px;
+    }
+
+    .reports-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .reports-title {
+        font-size: 1.3rem;
+    }
+
+    .report-card {
+        padding: 1.25rem;
+    }
+}
+
+.premium-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    margin: 15% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+    background: rgba(64, 224, 208, 0.05);
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-header h2 {
+    margin-left: 1rem;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.close-button {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.close-button:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-body p {
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.modal-body ul {
+    margin: 1.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.modal-body li {
+    color: #555;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.upgrade-button {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: #40E0D0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1.5rem;
+}
+
+.upgrade-button:hover {
+    background: #3BC9B9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(64, 224, 208, 0.2);
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+
+    .modal-header {
+        padding: 1.25rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+
+.greeting-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.greeting-section:hover {
+    border-color: #40E0D0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(64, 224, 208, 0.2);
+}
+
+.greeting-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.greeting-icon {
+    width: 56px;
+    height: 56px;
+    padding: 10px;
+    background: rgba(64, 224, 208, 0.1);
+    border-radius: 14px;
+}
+
+.greeting-text h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
+}
+
+.greeting-text p {
+    margin: 0.5rem 0 0 0;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.streak-count {
+    color: #40E0D0;
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+@media (max-width: 768px) {
+    .greeting-section {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .greeting-icon {
+        width: 48px;
+        height: 48px;
+        padding: 8px;
+    }
+
+    .greeting-text h2 {
+        font-size: 1.5rem;
+    }
+
+    .greeting-text p {
+        font-size: 1.1rem;
+    }
+
+    .streak-count {
+        font-size: 1.3rem;
+    }
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.share-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-btn:hover {
+    background: rgba(64, 224, 208, 0.1);
+}
+
+.share-icon {
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.share-btn:hover .share-icon {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        padding: 0 1rem;
+    }
+    
+    .share-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+// Exercise Duration Chart
+const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
+new Chart(exerciseCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Minutes',
+            data: [45, 60, 30, 75, 45, 90, 60],
+            backgroundColor: '#40E0D0',
+            borderColor: '#40E0D0',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Duration (minutes)'
+                }
+            }
+        }
+    }
+});
+
+// Sleep Patterns Chart
+const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+new Chart(sleepCtx, {
+    type: 'line',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Total Sleep',
+            data: [7.5, 6.8, 7.2, 8.0, 7.0, 8.5, 7.8],
+            borderColor: '#40E0D0',
+            backgroundColor: 'rgba(64, 224, 208, 0.1)',
+            fill: true
+        },
+        {
+            label: 'Deep Sleep',
+            data: [2.5, 2.2, 2.4, 2.8, 2.3, 3.0, 2.6],
+            borderColor: '#FF69B4',
+            backgroundColor: 'rgba(255, 105, 180, 0.1)',
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Hours'
+                }
+            }
+        }
+    }
+});
+
+// Blood Glucose Chart
+const glucoseCtx = document.getElementById('glucoseChart').getContext('2d');
+new Chart(glucoseCtx, {
+    type: 'line',
+    data: {
+        labels: ['6am', '9am', '12pm', '3pm', '6pm', '9pm'],
+        datasets: [{
+            label: 'Blood Glucose',
+            data: [5.2, 7.1, 6.8, 5.9, 6.5, 5.8],
+            borderColor: '#40E0D0',
+            backgroundColor: 'rgba(64, 224, 208, 0.1)',
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: {
+                    display: true,
+                    text: 'Blood Glucose (mmol/L)'
+                }
+            }
+        }
+    }
+});
+
+// Mood Distribution Chart
+const moodCtx = document.getElementById('moodChart').getContext('2d');
+new Chart(moodCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Very Happy', 'Happy', 'Neutral', 'Sad', 'Very Sad'],
+        datasets: [{
+            label: 'Frequency',
+            data: [8, 12, 15, 5, 2],
+            backgroundColor: '#40E0D0',
+            borderColor: '#40E0D0',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Days'
+                }
+            }
+        }
+    }
+});
+
+function showPremiumModal(event) {
+    event.preventDefault();
+    document.getElementById('premiumModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePremiumModal() {
+    document.getElementById('premiumModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function redirectToPremium() {
+    window.location.href = '/profile#premium-features';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('premiumModal');
+    if (event.target == modal) {
+        closePremiumModal();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const shareBtn = document.getElementById('shareBtn');
+    
+    shareBtn.addEventListener('click', function() {
+        // 这里可以添加分享功能的逻辑
+        alert('Share functionality will be implemented here');
+            });
+        });
+    </script>
+{% endblock %} 

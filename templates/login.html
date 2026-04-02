@@ -1,0 +1,516 @@
+{% extends "layout.html" %}
+
+{% block title %}Login - CoreWell{% endblock %}
+
+{% set hide_header = true %}
+
+{% block styles %}
+<style>
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        padding-top: 3rem;
+        background: var(--bg-color);
+    }
+
+    .logo-section {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .heart-logo {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 0.25rem auto;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .heart-logo:hover {
+        transform: scale(1.05);
+    }
+
+    .tagline {
+        font-size: 1.1rem;
+        color: #666;
+        margin-top: 1rem;
+        opacity: 0.8;
+    }
+
+    .login-form {
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 360px;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .brand-name {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #40E0D0;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-size: 0.9rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .login-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .login-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        margin-left: 0.5rem;
+    }
+
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .signup-prompt {
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .signup-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+
+    .consent-dialog {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .consent-dialog.show {
+        display: flex;
+    }
+
+    .consent-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .consent-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .consent-title {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .consent-text {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .consent-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .consent-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .consent-btn.agree {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .consent-btn.agree:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(64, 224, 208, 0.3);
+    }
+
+    .consent-btn.disagree {
+        background: #f1f1f1;
+        color: #666;
+    }
+
+    .consent-btn.disagree:hover {
+        background: #e5e5e5;
+    }
+
+    @media (max-width: 480px) {
+        .login-container {
+            padding-top: 2rem;
+        }
+
+        .login-card {
+            padding: 1.25rem;
+            max-width: 320px;
+        }
+
+        .heart-logo {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 0.25rem auto;
+        }
+
+        .brand-name {
+            font-size: 1.75rem;
+            margin: 0 0 1rem 0;
+        }
+
+        .consent-content {
+            padding: 1.5rem;
+        }
+
+        .consent-title {
+            font-size: 1.25rem;
+        }
+
+        .consent-buttons {
+            flex-direction: column;
+        }
+
+        .consent-btn {
+            width: 100%;
+        }
+
+        .social-btn {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        .social-btn img {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            margin-right: 8px;
+        }
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .btn-primary {
+        background-color: #40E0D0;
+        border: none;
+        padding: 12px;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .forgot-password {
+        color: #40E0D0;
+        text-decoration: none;
+    }
+
+    .divider {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        width: 45%;
+        height: 1px;
+        background-color: #ddd;
+    }
+
+    .divider::before {
+        left: 0;
+    }
+
+    .divider::after {
+        right: 0;
+    }
+
+    .divider span {
+        background-color: white;
+        padding: 0 10px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .social-login {
+        margin-top: 20px;
+    }
+
+    .social-btn {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: white;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .social-btn:hover {
+        background-color: #f5f5f5;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .social-btn img {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;
+        margin-right: 12px;
+        object-fit: contain;
+    }
+
+    .google-btn {
+        color: #757575;
+    }
+
+    .microsoft-btn {
+        color: #5E5E5E;
+    }
+
+    .apple-btn {
+        color: #000000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo-1.png') }}" alt="CoreWell Logo" class="heart-logo">
+            <div class="brand-name">CoreWell</div>
+        </div>
+
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter Your Email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter Your Password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Log In</button>
+
+            <div class="login-footer">
+                <a href="/forgot-password">Forgot Password?</a>
+            </div>
+            
+            <div class="signup-prompt">
+                Don't have an account? <a href="/signup" class="signup-link">Sign Up</a>
+            </div>
+        </form>
+
+        <div class="social-login">
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <button class="social-btn google-btn">
+                <img src="{{ url_for('static', filename='images/icons8-google-50.png') }}" alt="Google Icon" class="social-icon">
+                Continue with Google
+            </button>
+            
+            <button class="social-btn microsoft-btn">
+                <img src="{{ url_for('static', filename='images/icons8-microsoft-50.png') }}" alt="Microsoft Icon" class="social-icon">
+                Continue with Microsoft Account
+            </button>
+            
+            <button class="social-btn apple-btn">
+                <img src="{{ url_for('static', filename='images/icons8-apple-50.png') }}" alt="Apple Icon" class="social-icon">
+                Continue with Apple
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 数据保护同意对话框 -->
+<div id="consentDialog" class="consent-dialog">
+    <div class="consent-content">
+        <div class="consent-icon">🔒</div>
+        <div class="consent-title">Data Protection Notice</div>
+        <div class="consent-text">
+            Your health data will be encrypted and securely stored in our system. We prioritize your privacy and comply with health data protection regulations. By clicking "I Agree", you consent to our data processing practices for providing you with personalized health insights.
+        </div>
+        <div class="consent-buttons">
+            <button class="consent-btn agree" onclick="handleConsent(true)">I Agree</button>
+            <button class="consent-btn disagree" onclick="handleConsent(false)">I Disagree</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let loginData = null;
+
+function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    // 保存登录数据
+    loginData = {
+        email: email,
+        password: password
+    };
+    
+    // 显示同意对话框
+    document.getElementById('consentDialog').classList.add('show');
+    
+    return false;
+}
+
+function handleConsent(agreed) {
+    const consentDialog = document.getElementById('consentDialog');
+    const loginBtn = document.querySelector('.login-btn');
+    
+    if (agreed && loginData) {
+        // 显示加载状态
+        loginBtn.textContent = 'Logging in...';
+        loginBtn.disabled = true;
+        
+        // 发送登录请求
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                loginBtn.textContent = 'Log In';
+                loginBtn.disabled = false;
+                alert(data.message || 'Login failed. Please check your credentials.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loginBtn.textContent = 'Log In';
+            loginBtn.disabled = false;
+            alert('An error occurred during login. Please try again.');
+        });
+    } else {
+        // 如果不同意，隐藏对话框
+        consentDialog.classList.remove('show');
+        loginData = null;
+        
+        if (!agreed) {
+            alert('You must agree to the data protection notice to use CoreWell.');
+        }
+    }
+}
+</script>
+{% endblock %} 

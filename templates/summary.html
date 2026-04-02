@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block title %}Summary - CoreWell{% endblock %}
+
+{% block header %}Health Summary{% endblock %}
+
+{% block styles %}
+<style>
+    .summary-container {
+        padding: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .premium-banner {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+    }
+
+    .premium-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .premium-description {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+    }
+
+    .premium-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .premium-feature {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .upgrade-btn {
+        display: inline-block;
+        background: white;
+        color: #FFA500;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .upgrade-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .summary-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+    }
+
+    .summary-title {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .summary-container {
+            padding: 1rem;
+        }
+
+        .premium-title {
+            font-size: 1.5rem;
+        }
+
+        .premium-description {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="summary-container">
+    <div class="premium-banner">
+        <h2 class="premium-title">Unlock Premium Features</h2>
+        <p class="premium-description">Get access to advanced health insights and personalized recommendations</p>
+        <div class="premium-features">
+            <div class="premium-feature">
+                <div class="feature-icon">📊</div>
+                <div>Advanced Analytics</div>
+            </div>
+            <div class="premium-feature">
+                <div class="feature-icon">👨‍⚕️</div>
+                <div>Doctor Consultation</div>
+            </div>
+            <div class="premium-feature">
+                <div class="feature-icon">📥</div>
+                <div>Health Reports</div>
+            </div>
+        </div>
+        <a href="{{ url_for('premium') }}" class="upgrade-btn">View Premium Features</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h3 class="summary-title">Weekly Activity</h3>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ user.health_stats.weekly_workouts }}</div>
+                    <div class="stat-label">Workouts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">75%</div>
+                    <div class="stat-label">Goal Progress</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <h3 class="summary-title">Weight Progress</h3>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ user.health_stats.weight }}kg</div>
+                    <div class="stat-label">Current</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ user.health_stats.target_weight }}kg</div>
+                    <div class="stat-label">Target</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <h3 class="summary-title">Health Score</h3>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value">85</div>
+                    <div class="stat-label">Overall Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">+5%</div>
+                    <div class="stat-label">Improvement</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

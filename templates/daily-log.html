@@ -1,0 +1,1040 @@
+{% extends "layout.html" %}
+
+{% block title %}Daily Health Log - LifePulse{% endblock %}
+
+{% block header %}Daily Health Log{% endblock %}
+
+{% block styles %}
+    <style>
+    .log-container {
+            max-width: 800px;
+            margin: 0 auto;
+        padding: 20px;
+    }
+
+    .date-header {
+        color: var(--text-color);
+        margin-bottom: var(--spacing-lg);
+        font-size: 1.2rem;
+            display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+    }
+
+    .date-header .date-text {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    .view-history-btn {
+        align-self: flex-start;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .view-history-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .log-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease;
+    }
+
+    .log-section:hover {
+        transform: translateY(-2px);
+    }
+
+    .log-section h2 {
+        margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        color: var(--primary-color);
+        font-size: 1.3rem;
+    }
+
+    .log-section h2 img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    @media (max-width: 768px) {
+        .log-container {
+            padding: 10px;
+        }
+
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .log-section {
+            padding: var(--spacing-md);
+        }
+    }
+
+    .metric-input {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+
+    .metric-input:hover {
+        background: #f0f2f5;
+    }
+
+    .metric-input label {
+        font-weight: 500;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .metric-input input,
+    .metric-input select {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #eee;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .metric-input input:focus,
+    .metric-input select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .symptoms-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .symptom-tag {
+        padding: 0.8rem 1rem;
+        background: #f8f9fa;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .symptom-tag:hover {
+        background: #e9ecef;
+    }
+
+    .symptom-tag.active {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .notes-input {
+        width: 100%;
+        min-height: 120px;
+        padding: 1rem;
+        border: 2px solid #eee;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        background: #f8f9fa;
+        transition: all 0.3s;
+    }
+
+    .notes-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .save-button {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1.1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: var(--spacing-lg);
+    }
+
+    .save-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: white;
+        margin: 15% auto;
+        padding: 2rem;
+        width: 90%;
+        max-width: 500px;
+            border-radius: var(--border-radius);
+        text-align: center;
+    }
+
+    .modal-content h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    /* History Viewer Styles */
+    .history-viewer {
+        margin-top: var(--spacing-lg);
+    }
+
+    .history-controls {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+    .history-list {
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: var(--spacing-md);
+    }
+
+    .history-item {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
+        box-shadow: var(--card-shadow);
+    }
+
+    .history-item .date {
+        color: var(--primary-color);
+        font-weight: 500;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .history-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .history-metric {
+        background: #f8f9fa;
+        padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+        }
+
+    .history-metric label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-color);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .history-metric span {
+        color: var(--primary-color);
+    }
+
+    .history-section {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .history-section h4 {
+        margin-bottom: var(--spacing-sm);
+        color: var(--text-color);
+    }
+
+    .history-symptoms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .history-symptom {
+            background: var(--primary-color);
+            color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    /* Mood Tracker Styles */
+    .mood-section {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    @media (max-width: 768px) {
+        .mood-section {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .mood-section {
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+        }
+    }
+
+    .mood-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid #eee;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .mood-option.selected {
+        border-color: var(--primary-color);
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .mood-option span {
+        font-size: 1.5rem;
+    }
+
+    .mood-option span:last-child {
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* Menstrual Tracking Styles */
+    .menstrual-tracking {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+            cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+        }
+
+    /* History Modal Styles */
+    .history-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+
+    .history-modal-content {
+        position: relative;
+        background: white;
+        margin: 5% auto;
+        padding: 0;
+        width: 90%;
+        max-width: 800px;
+        border-radius: 15px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .history-modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #eee;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .history-modal-header h2 {
+        margin: 0;
+        color: var(--text-color);
+    }
+
+    .close-history {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+
+    .close-history:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .history-modal-body {
+        padding: 1.5rem;
+    }
+
+    .history-entry {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #eee;
+    }
+
+    .history-entry-date {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+    .history-entry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .history-entry-metric {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .history-entry-metric label {
+        display: block;
+        color: #666;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .history-entry-metric span {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        font-weight: 500;
+    }
+
+    .history-entry-notes {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .history-entry-notes h4 {
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .history-entry-notes p {
+        color: var(--text-color);
+        line-height: 1.5;
+    }
+
+    /* Floating Doctor Button Styles */
+    .floating-doctor-btn {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        padding: 15px;
+        box-sizing: border-box;
+        z-index: 1000;
+    }
+
+    .floating-doctor-btn img {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 8px;
+    }
+
+    .floating-doctor-btn span {
+        font-size: 14px;
+        text-align: center;
+        line-height: 1.2;
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+
+    .floating-doctor-btn:hover {
+        transform: translateY(-5px);
+        background: var(--primary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .floating-doctor-btn {
+            width: 100px;
+            height: 100px;
+            bottom: 70px;
+            right: 15px;
+            padding: 12px;
+        }
+
+        .floating-doctor-btn img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 6px;
+        }
+
+        .floating-doctor-btn span {
+            font-size: 12px;
+        }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="log-container">
+    <div class="date-header">
+        <div>Track your health metrics for <span class="date-text" id="current-date"></span></div>
+        <button onclick="showHistory()" class="view-history-btn">View History</button>
+    </div>
+
+    <form id="health-log-form" onsubmit="handleSubmit(event)">
+        <div class="log-section">
+            <h2><i><img src="{{ url_for('static', filename='images/test.png') }}" alt="Test" style="width: 24px; height: 24px;"></i> Basic Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-input">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" step="0.1" required>
+                </div>
+                <div class="metric-input">
+                    <label for="blood-glucose">Blood Glucose (mmol/L)</label>
+                    <input type="number" id="blood-glucose" step="0.1" required>
+                </div>
+                <div class="metric-input">
+                    <label for="sleep">Sleep Duration (hours)</label>
+                    <input type="number" id="sleep" step="0.5" required>
+            </div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h2><i><img src="{{ url_for('static', filename='images/jogging.png') }}" alt="Activity" style="width: 24px; height: 24px;"></i> Activity</h2>
+            <div class="metrics-grid">
+                <div class="metric-input">
+                    <label for="steps">Steps</label>
+                    <input type="number" id="steps">
+                </div>
+                <div class="metric-input">
+                    <label for="exercise">Exercise Duration (minutes)</label>
+                    <input type="number" id="exercise">
+            </div>
+                <div class="metric-input">
+                    <label for="exercise-type">Exercise Type</label>
+                    <select id="exercise-type">
+                        <option value="">Select type</option>
+                        <option value="walking">Walking</option>
+                        <option value="running">Running</option>
+                        <option value="cycling">Cycling</option>
+                        <option value="swimming">Swimming</option>
+                        <option value="gym">Gym Workout</option>
+                </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h2><i><img src="{{ url_for('static', filename='images/mood.png') }}" alt="Mood" style="width: 24px; height: 24px;"></i> Mood Tracking</h2>
+            <div class="mood-section">
+                <div class="mood-option" onclick="selectMood(this, 'great')">
+                    <span>😊</span>
+                    Great
+                </div>
+                <div class="mood-option" onclick="selectMood(this, 'good')">
+                    <span>🙂</span>
+                    Good
+                </div>
+                <div class="mood-option" onclick="selectMood(this, 'okay')">
+                    <span>😐</span>
+                    Okay
+                </div>
+                <div class="mood-option" onclick="selectMood(this, 'bad')">
+                    <span>😕</span>
+                    Bad
+                </div>
+                <div class="mood-option" onclick="selectMood(this, 'terrible')">
+                    <span>😢</span>
+                    Terrible
+                </div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h2><i><img src="{{ url_for('static', filename='images/menstruation.png') }}" alt="Menstrual" style="width: 24px; height: 24px;"></i> Menstrual Tracking</h2>
+            <div class="menstrual-tracking">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="menstrual-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span>Record menstrual period</span>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h2><i><img src="{{ url_for('static', filename='images/symptoms.png') }}" alt="Symptoms" style="width: 24px; height: 24px;"></i> Symptoms</h2>
+            <div class="symptoms-list">
+                <div class="symptom-tag" onclick="toggleSymptom(this)">Headache</div>
+                <div class="symptom-tag" onclick="toggleSymptom(this)">Fatigue</div>
+                <div class="symptom-tag" onclick="toggleSymptom(this)">Muscle Pain</div>
+                <div class="symptom-tag" onclick="toggleSymptom(this)">Fever</div>
+                <div class="symptom-tag" onclick="toggleSymptom(this)">Cough</div>
+                <div class="symptom-tag" onclick="toggleSymptom(this)">Nausea</div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h2><i>📝</i> Notes</h2>
+            <textarea class="notes-input" placeholder="Add any additional notes about your health today..."></textarea>
+        </div>
+
+        <button type="submit" class="save-button">Save Daily Log</button>
+    </form>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" class="modal">
+    <div class="modal-content">
+        <h3>Success!</h3>
+        <p>Your health log has been saved successfully.</p>
+        <button onclick="closeModal()" class="btn btn-primary">Close</button>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" class="history-modal">
+    <div class="history-modal-content">
+        <div class="history-modal-header">
+            <h2>Health Log History</h2>
+            <button class="close-history" onclick="closeHistoryModal()">&times;</button>
+        </div>
+        <div class="history-modal-body">
+            <div id="historyEntries">
+                <!-- History entries will be populated here -->
+            </div>
+        </div>
+            </div>
+        </div>
+
+<!-- Add Floating Doctor Button -->
+<button class="floating-doctor-btn" onclick="window.location.href='/ask-doctor'">
+    <img src="{{ url_for('static', filename='images/doctor.png') }}" alt="Dr. Sarah">
+    <span>Ask Dr. Sarah</span>
+</button>
+
+    <script>
+    // Set current date
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
+
+    let selectedMood = null;
+
+    function toggleSymptom(element) {
+        element.classList.toggle('active');
+    }
+
+    function selectMood(element, mood) {
+        document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+        element.classList.add('selected');
+        selectedMood = mood;
+    }
+
+    function showModal() {
+        document.getElementById('success-modal').style.display = 'block';
+        document.querySelector('.floating-doctor-btn').style.zIndex = '1002';
+    }
+
+    function closeModal() {
+        document.getElementById('success-modal').style.display = 'none';
+        document.querySelector('.floating-doctor-btn').style.zIndex = '1001';
+    }
+
+    function showHistory() {
+        document.getElementById('historyModal').style.display = 'block';
+        // Set max date to today and default to today's date
+        const historyDate = document.getElementById('history-date');
+        const today = new Date().toISOString().split('T')[0];
+        historyDate.max = today;
+        historyDate.value = today;
+        loadHistory(today);
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.querySelector('.floating-doctor-btn').style.zIndex = '1001';
+    }
+
+    function loadHistory(date) {
+        const historyContent = document.getElementById('history-content');
+        const logs = JSON.parse(localStorage.getItem('healthLogs') || '{}');
+        
+        // Convert logs object to array and sort by date (newest first)
+        const logsArray = Object.entries(logs)
+            .map(([date, data]) => ({date, ...data}))
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (logsArray.length > 0) {
+            historyContent.innerHTML = logsArray.map(log => `
+                <div class="history-item">
+                    <div class="date">${new Date(log.date).toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}</div>
+                    
+                    <div class="history-metrics">
+                        <div class="history-metric">
+                            <label>Weight</label>
+                            <span>${log.weight || 'Not recorded'} kg</span>
+                        </div>
+                        <div class="history-metric">
+                            <label>Blood Glucose</label>
+                            <span>${log.bloodGlucose || 'Not recorded'} mmol/L</span>
+                        </div>
+                        <div class="history-metric">
+                            <label>Sleep</label>
+                            <span>${log.sleep || 'Not recorded'} hours</span>
+                        </div>
+                    </div>
+
+                    <div class="history-section">
+                        <h4>Activity</h4>
+                        <div class="history-metrics">
+                            <div class="history-metric">
+                                <label>Steps</label>
+                                <span>${log.steps || 'Not recorded'}</span>
+                            </div>
+                            <div class="history-metric">
+                                <label>Exercise</label>
+                                <span>${log.exercise ? `${log.exercise} minutes (${log.exerciseType})` : 'Not recorded'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="history-section">
+                        <h4>Mood</h4>
+                        <div class="history-metric">
+                            <span>${log.mood || 'Not recorded'}</span>
+                        </div>
+                    </div>
+
+                    ${log.menstrual ? `
+                    <div class="history-section">
+                        <h4>Menstrual Period</h4>
+                        <div class="history-metric">
+                            <span>Recorded</span>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${log.symptoms && log.symptoms.length > 0 ? `
+                    <div class="history-section">
+                        <h4>Symptoms</h4>
+                        <div class="history-symptoms">
+                            ${log.symptoms.map(symptom => `
+                                <div class="history-symptom">${symptom}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${log.notes ? `
+                    <div class="history-section">
+                        <h4>Notes</h4>
+                        <div class="history-metric">
+                            <span>${log.notes}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        } else {
+            historyContent.innerHTML = '<p>No data available.</p>';
+        }
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        
+        const formData = {
+            weight: document.getElementById('weight').value,
+            bloodGlucose: document.getElementById('blood-glucose').value,
+            sleep: document.getElementById('sleep').value,
+            steps: document.getElementById('steps').value,
+            exercise: document.getElementById('exercise').value,
+            exerciseType: document.getElementById('exercise-type').value,
+            mood: selectedMood,
+            menstrual: document.getElementById('menstrual-toggle').checked,
+            symptoms: Array.from(document.querySelectorAll('.symptom-tag.active')).map(tag => tag.textContent),
+            notes: document.querySelector('.notes-input').value,
+            date: new Date().toISOString().split('T')[0] // Store only the date part
+        };
+
+        // Save to localStorage
+        const logs = JSON.parse(localStorage.getItem('healthLogs') || '{}');
+        logs[formData.date] = formData;
+        localStorage.setItem('healthLogs', JSON.stringify(logs));
+
+        // Show success modal
+        showModal();
+        
+        // Reset form
+        document.getElementById('health-log-form').reset();
+        document.querySelectorAll('.symptom-tag').forEach(tag => tag.classList.remove('active'));
+        document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+        selectedMood = null;
+
+        // Log for debugging
+        console.log('Saved data:', formData);
+        console.log('All logs:', logs);
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // Add this to your existing JavaScript
+    const mockHistoryData = [
+        {
+            date: '2024-04-05',
+            metrics: {
+                weight: '75.5 kg',
+                bloodGlucose: '5.2 mmol/L',
+                sleepHours: '7.5 hours'
+            },
+            mood: 'Happy',
+            symptoms: ['Energetic', 'Well-rested'],
+            notes: 'Had a great day! Completed all my exercise goals and maintained a balanced diet.'
+        },
+        {
+            date: '2024-04-04',
+            metrics: {
+                weight: '75.8 kg',
+                bloodGlucose: '5.8 mmol/L',
+                sleepHours: '8 hours'
+            },
+            mood: 'Neutral',
+            symptoms: ['Mild headache', 'Tired'],
+            notes: 'Felt a bit tired in the morning, but recovered after lunch. Need to improve sleep quality.'
+        },
+        {
+            date: '2024-04-03',
+            metrics: {
+                weight: '76.0 kg',
+                bloodGlucose: '5.5 mmol/L',
+                sleepHours: '6.5 hours'
+            },
+            mood: 'Energetic',
+            symptoms: ['Productive', 'Active'],
+            notes: 'Very productive day at work. Completed a full workout session and maintained good nutrition.'
+        },
+        {
+            date: '2024-04-02',
+            metrics: {
+                weight: '75.9 kg',
+                bloodGlucose: '5.7 mmol/L',
+                sleepHours: '7.0 hours'
+            },
+            mood: 'Good',
+            symptoms: ['Normal', 'Balanced'],
+            notes: 'Regular day with moderate activity. Blood glucose levels slightly elevated after dinner.'
+        },
+        {
+            date: '2024-04-01',
+            metrics: {
+                weight: '76.2 kg',
+                bloodGlucose: '5.4 mmol/L',
+                sleepHours: '7.8 hours'
+            },
+            mood: 'Great',
+            symptoms: ['Energetic', 'Focused'],
+            notes: 'Excellent day! Started new exercise routine and maintained stable blood glucose levels throughout the day.'
+        }
+    ];
+
+    function showHistoryModal() {
+        const modal = document.getElementById('historyModal');
+        const entriesContainer = document.getElementById('historyEntries');
+        
+        // Clear previous entries
+        entriesContainer.innerHTML = '';
+        
+        // Populate with mock data
+        mockHistoryData.forEach(entry => {
+            const entryHtml = `
+                <div class="history-entry">
+                    <div class="history-entry-date">${entry.date}</div>
+                    <div class="history-entry-grid">
+                        ${Object.entries(entry.metrics).map(([key, value]) => `
+                            <div class="history-entry-metric">
+                                <label>${key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                                <span>${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="history-entry-metric">
+                        <label>Mood</label>
+                        <span>${entry.mood}</span>
+                    </div>
+                    <div class="history-entry-metric">
+                        <label>Symptoms</label>
+                        <span>${entry.symptoms.join(', ')}</span>
+                    </div>
+                    <div class="history-entry-notes">
+                        <h4>Notes</h4>
+                        <p>${entry.notes}</p>
+                    </div>
+                </div>
+            `;
+            entriesContainer.innerHTML += entryHtml;
+        });
+        
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        document.querySelector('.floating-doctor-btn').style.zIndex = '1002';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('historyModal');
+        if (event.target == modal) {
+            closeHistoryModal();
+        }
+    }
+
+    // Add click event listener to view history button
+    document.addEventListener('DOMContentLoaded', function() {
+        const viewHistoryButtons = document.querySelectorAll('.view-history-btn');
+        viewHistoryButtons.forEach(button => {
+            button.addEventListener('click', showHistoryModal);
+        });
+    });
+
+    // Add scroll event listener for floating doctor button
+    window.addEventListener('scroll', function() {
+        const doctorBtn = document.querySelector('.floating-doctor-btn');
+        if (window.innerWidth <= 768) {
+            if (window.scrollY > 100) {
+                doctorBtn.classList.add('scrolled');
+            } else {
+                doctorBtn.classList.remove('scrolled');
+            }
+        }
+        });
+    </script>
+{% endblock %} 

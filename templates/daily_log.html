@@ -1,0 +1,538 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="daily-log-container">
+    <div class="greeting-section">
+        <div class="greeting-content">
+            <img src="/static/images/icons8-heart-health-32.png" alt="Health Log" class="greeting-icon">
+            <div class="greeting-text">
+                <h2>Today's Health Log</h2>
+                <p class="date-display"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="log-grid">
+        <!-- Exercise Section -->
+        <div class="log-card">
+            <div class="card-header">
+                <img src="/static/images/icons8-exercise-32.png" alt="Exercise" class="card-icon">
+                <h3>Exercise</h3>
+            </div>
+            <div class="card-content">
+                <div class="input-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" id="exercise-duration" min="0" max="500">
+                </div>
+                <div class="input-group">
+                    <label>Type</label>
+                    <select id="exercise-type">
+                        <option value="cardio">Cardio</option>
+                        <option value="strength">Strength Training</option>
+                        <option value="yoga">Yoga</option>
+                        <option value="sports">Sports</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Intensity</label>
+                    <div class="intensity-buttons">
+                        <button class="intensity-btn" data-intensity="low">Low</button>
+                        <button class="intensity-btn" data-intensity="medium">Medium</button>
+                        <button class="intensity-btn" data-intensity="high">High</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Section -->
+        <div class="log-card">
+            <div class="card-header">
+                <img src="/static/images/icons8-nutrition-32.png" alt="Nutrition" class="card-icon">
+                <h3>Nutrition</h3>
+            </div>
+            <div class="card-content">
+                <div class="input-group">
+                    <label>Calories</label>
+                    <input type="number" id="calories" min="0" max="5000">
+                </div>
+                <div class="input-group">
+                    <label>Water (glasses)</label>
+                    <div class="water-tracker">
+                        <button class="water-btn" data-glasses="1">1</button>
+                        <button class="water-btn" data-glasses="2">2</button>
+                        <button class="water-btn" data-glasses="4">4</button>
+                        <button class="water-btn" data-glasses="6">6</button>
+                        <button class="water-btn" data-glasses="8">8</button>
+                    </div>
+                </div>
+                <div class="meal-tracking">
+                    <div class="meal-type">
+                        <input type="checkbox" id="breakfast">
+                        <label for="breakfast">Breakfast</label>
+                    </div>
+                    <div class="meal-type">
+                        <input type="checkbox" id="lunch">
+                        <label for="lunch">Lunch</label>
+                    </div>
+                    <div class="meal-type">
+                        <input type="checkbox" id="dinner">
+                        <label for="dinner">Dinner</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sleep Section -->
+        <div class="log-card">
+            <div class="card-header">
+                <img src="/static/images/icons8-sleep-32.png" alt="Sleep" class="card-icon">
+                <h3>Sleep</h3>
+            </div>
+            <div class="card-content">
+                <div class="input-group">
+                    <label>Duration (hours)</label>
+                    <input type="number" id="sleep-duration" min="0" max="24" step="0.5">
+                </div>
+                <div class="input-group">
+                    <label>Quality</label>
+                    <div class="sleep-quality">
+                        <button class="quality-btn" data-quality="poor">😴</button>
+                        <button class="quality-btn" data-quality="fair">😊</button>
+                        <button class="quality-btn" data-quality="good">😃</button>
+                        <button class="quality-btn" data-quality="excellent">🤩</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mood Section -->
+        <div class="log-card">
+            <div class="card-header">
+                <img src="/static/images/icons8-mood-32.png" alt="Mood" class="card-icon">
+                <h3>Mood</h3>
+            </div>
+            <div class="card-content">
+                <div class="mood-tracker">
+                    <button class="mood-btn" data-mood="great">😄</button>
+                    <button class="mood-btn" data-mood="good">🙂</button>
+                    <button class="mood-btn" data-mood="okay">😐</button>
+                    <button class="mood-btn" data-mood="bad">😔</button>
+                    <button class="mood-btn" data-mood="terrible">😢</button>
+                </div>
+                <div class="input-group">
+                    <label>Notes</label>
+                    <textarea id="mood-notes" placeholder="How are you feeling today?"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="log-actions">
+        <button class="action-btn view-history" onclick="openHistoryModal()">
+            <img src="/static/images/icons8-history-32.png" alt="History" class="action-icon">
+            View History
+        </button>
+        <button class="action-btn save-log" onclick="saveLog()">
+            <img src="/static/images/icons8-save-32.png" alt="Save" class="action-icon">
+            Save Log
+        </button>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div id="historyModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Health Log History</h2>
+            <button class="close-btn" onclick="closeHistoryModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="history-filters">
+                <select id="historyType">
+                    <option value="all">All Activities</option>
+                    <option value="exercise">Exercise</option>
+                    <option value="nutrition">Nutrition</option>
+                    <option value="sleep">Sleep</option>
+                    <option value="mood">Mood</option>
+                </select>
+                <div class="date-range">
+                    <input type="date" id="startDate">
+                    <span>to</span>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+            <div class="history-content">
+                <!-- History entries will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.daily-log-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.greeting-section {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.greeting-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.greeting-icon {
+    width: 48px;
+    height: 48px;
+    padding: 8px;
+    background: rgba(64, 224, 208, 0.1);
+    border-radius: 12px;
+}
+
+.greeting-text h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0;
+}
+
+.date-display {
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.log-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.log-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.log-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(64, 224, 208, 0.2);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    background: rgba(64, 224, 208, 0.1);
+    border-radius: 8px;
+}
+
+.card-header h3 {
+    font-size: 1.25rem;
+    color: #333;
+    margin: 0;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+input[type="number"],
+select,
+textarea {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    border-color: #40E0D0;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
+}
+
+.intensity-buttons,
+.water-tracker,
+.sleep-quality,
+.mood-tracker {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.intensity-btn,
+.water-btn,
+.quality-btn,
+.mood-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.intensity-btn:hover,
+.water-btn:hover,
+.quality-btn:hover,
+.mood-btn:hover {
+    background: rgba(64, 224, 208, 0.1);
+    border-color: #40E0D0;
+}
+
+.intensity-btn.active,
+.water-btn.active,
+.quality-btn.active,
+.mood-btn.active {
+    background: #40E0D0;
+    color: white;
+    border-color: #40E0D0;
+}
+
+.meal-tracking {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.meal-type {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.log-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-history {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.save-log {
+    background: #40E0D0;
+    color: white;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.history-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.history-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .daily-log-container {
+        padding: 1rem;
+    }
+
+    .log-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .log-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .history-filters {
+        flex-direction: column;
+    }
+
+    .date-range {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current date
+    const today = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.querySelector('.date-display').textContent = today.toLocaleDateString('en-US', options);
+
+    // Button click handlers
+    const buttons = document.querySelectorAll('.intensity-btn, .water-btn, .quality-btn, .mood-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from siblings
+            const siblings = this.parentElement.querySelectorAll('button');
+            siblings.forEach(sib => sib.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+        });
+    });
+});
+
+function openHistoryModal() {
+    document.getElementById('historyModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeHistoryModal() {
+    document.getElementById('historyModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function saveLog() {
+    // Implement save functionality
+    console.log('Saving log...');
+    // Add success notification
+    alert('Log saved successfully!');
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('historyModal');
+    if (event.target == modal) {
+        closeHistoryModal();
+    }
+}
+</script>
+{% endblock %} 

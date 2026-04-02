@@ -1,0 +1,273 @@
+{% extends "layout.html" %}
+
+{% block title %}Notifications - LifePulse{% endblock %}
+
+{% block header %}Notifications{% endblock %}
+
+{% block styles %}
+<style>
+    .notifications-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .notification-section {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+        box-shadow: var(--card-shadow);
+    }
+
+    .notification-section h2 {
+        color: var(--primary-color);
+        margin-bottom: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .notification-section h2 img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .notification-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .notification-item {
+        background: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .notification-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .notification-icon.medication {
+        background: rgba(0, 123, 255, 0.1);
+        color: var(--primary-color);
+    }
+
+    .notification-icon.doctor {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .notification-icon.reminder {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .notification-text {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .notification-time {
+        color: #999;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .notification-badge {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: auto;
+    }
+
+    .notification-badge.new {
+        background: #dc3545;
+    }
+
+    .notification-badge.important {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .notification-badge.regular {
+        background: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .notifications-container {
+            padding: 10px;
+        }
+
+        .notification-section {
+            padding: var(--spacing-md);
+        }
+
+        .notification-item {
+            padding: var(--spacing-sm);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <div class="notification-section">
+        <h2><img src="{{ url_for('static', filename='images/medicine.png') }}" alt="Medication"> Medication Reminders</h2>
+        <div class="notification-list">
+            <div class="notification-item" onclick="showNotificationDetails('medication-1')">
+                <div class="notification-icon medication">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Take Blood Pressure Medication</div>
+                    <div class="notification-text">Time to take your prescribed blood pressure medication (1 tablet)</div>
+                    <div class="notification-time">Today, 8:00 AM</div>
+                </div>
+                <div class="notification-badge new">New</div>
+            </div>
+            <div class="notification-item" onclick="showNotificationDetails('medication-2')">
+                <div class="notification-icon medication">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Diabetes Medication Reminder</div>
+                    <div class="notification-text">Take your diabetes medication before meals (2 tablets)</div>
+                    <div class="notification-time">Today, 12:30 PM</div>
+                </div>
+                <div class="notification-badge important">Important</div>
+            </div>
+            <div class="notification-item" onclick="showNotificationDetails('medication-3')">
+                <div class="notification-icon medication">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Vitamin D Supplement</div>
+                    <div class="notification-text">Time to take your daily Vitamin D supplement (1 tablet)</div>
+                    <div class="notification-time">Today, 6:00 PM</div>
+                </div>
+                <div class="notification-badge regular">Regular</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-section">
+        <h2><img src="{{ url_for('static', filename='images/doctor.png') }}" alt="Doctor"> Doctor Recommendations</h2>
+        <div class="notification-list">
+            <div class="notification-item" onclick="showNotificationDetails('doctor-1')">
+                <div class="notification-icon doctor">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Follow-up Appointment Reminder</div>
+                    <div class="notification-text">Dr. Smith recommends a follow-up appointment to review your blood pressure medication</div>
+                    <div class="notification-time">Yesterday, 2:15 PM</div>
+                </div>
+                <div class="notification-badge new">New</div>
+            </div>
+            <div class="notification-item" onclick="showNotificationDetails('doctor-2')">
+                <div class="notification-icon doctor">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Lifestyle Recommendations</div>
+                    <div class="notification-text">Based on your recent health data, Dr. Johnson suggests increasing your daily water intake to 2.5L</div>
+                    <div class="notification-time">2 days ago, 10:30 AM</div>
+                </div>
+                <div class="notification-badge important">Important</div>
+            </div>
+            <div class="notification-item" onclick="showNotificationDetails('doctor-3')">
+                <div class="notification-icon doctor">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Exercise Plan Update</div>
+                    <div class="notification-text">Dr. Williams has updated your exercise plan based on your recent progress</div>
+                    <div class="notification-time">3 days ago, 4:45 PM</div>
+                </div>
+                <div class="notification-badge regular">Regular</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-section">
+        <h2><img src="{{ url_for('static', filename='images/reminder.png') }}" alt="Reminder"> General Reminders</h2>
+        <div class="notification-list">
+            <div class="notification-item" onclick="showNotificationDetails('reminder-1')">
+                <div class="notification-icon reminder">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Annual Health Check-up</div>
+                    <div class="notification-text">Your annual health check-up is scheduled for next week. Please prepare your health records.</div>
+                    <div class="notification-time">Today, 9:00 AM</div>
+                </div>
+                <div class="notification-badge new">New</div>
+            </div>
+            <div class="notification-item" onclick="showNotificationDetails('reminder-2')">
+                <div class="notification-icon reminder">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Medication Refill Reminder</div>
+                    <div class="notification-text">Your blood pressure medication is running low. Please refill your prescription.</div>
+                    <div class="notification-time">Yesterday, 11:20 AM</div>
+                </div>
+                <div class="notification-badge important">Important</div>
+            </div>
+            <div class="notification-item" onclick="showNotificationDetails('reminder-3')">
+                <div class="notification-icon reminder">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notification" style="width: 20px; height: 20px;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Health Goal Achievement</div>
+                    <div class="notification-text">Congratulations! You've achieved your weekly step goal for the third week in a row.</div>
+                    <div class="notification-time">2 days ago, 5:30 PM</div>
+                </div>
+                <div class="notification-badge regular">Regular</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showNotificationDetails(notificationId) {
+        // This function would show detailed information about the notification
+        // For now, we'll just show an alert with the notification ID
+        alert('Showing details for notification: ' + notificationId);
+        
+        // In a real application, this would open a modal or navigate to a detail page
+        // window.location.href = '/notification/' + notificationId;
+    }
+</script>
+{% endblock %} 

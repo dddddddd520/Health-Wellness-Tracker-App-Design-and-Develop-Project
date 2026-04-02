@@ -1,0 +1,387 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile - CoreWell{% endblock %}
+
+{% block header %}Profile{% endblock %}
+
+{% block styles %}
+<style>
+    .profile-container {
+        max-width: 100%;
+        padding: var(--spacing-md);
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: clamp(100px, 20vw, 150px);
+        height: clamp(100px, 20vw, 150px);
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: var(--card-shadow);
+    }
+
+    .profile-name {
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        color: var(--text-color);
+        font-weight: 600;
+    }
+
+    .profile-email {
+        font-size: clamp(0.9rem, 1.5vw, 1rem);
+        color: #666;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .stat-card {
+        background: white;
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .stat-label {
+        font-size: clamp(0.9rem, 1.5vw, 1rem);
+        color: #666;
+    }
+
+    .profile-section {
+        background: white;
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .section-title {
+        font-size: clamp(1.2rem, 2vw, 1.5rem);
+        color: var(--text-color);
+        margin-bottom: var(--spacing-md);
+        font-weight: 600;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .info-label {
+        font-size: clamp(0.9rem, 1.5vw, 1rem);
+        color: #666;
+    }
+
+    .info-value {
+        font-size: clamp(1rem, 1.8vw, 1.2rem);
+        color: var(--text-color);
+        font-weight: 500;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+        border-radius: var(--border-radius);
+        border: none;
+        font-size: clamp(0.9rem, 1.5vw, 1rem);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #f1f1f1;
+        color: var(--text-color);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .premium-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .premium-feature {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+        background: rgba(64, 224, 208, 0.1);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--primary-color);
+    }
+
+    .premium-feature i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: var(--spacing-sm);
+        }
+
+        .profile-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .logout-section {
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        text-align: center;
+    }
+
+    .logout-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 2rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        color: #dc3545;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .logout-button:hover {
+        background-color: #fff1f1;
+        border-color: #dc3545;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.1);
+    }
+
+    .logout-icon {
+        width: 24px;
+        height: 24px;
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .logout-section {
+            margin: 1.5rem auto 5rem;
+        }
+        
+        .logout-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    .header-logout-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.75rem 1.5rem;
+        background-color: white;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        margin-top: var(--spacing-md);
+    }
+
+    .header-logout-button:hover {
+        background-color: #fff1f1;
+        border-color: #dc3545;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.1);
+    }
+
+    .logout-icon {
+        width: 20px;
+        height: 20px;
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .header-logout-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .logout-icon {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <img src="{{ url_for('static', filename='images/profile.png') }}" alt="Profile Picture" class="profile-avatar">
+        <h1 class="profile-name">Bill Smith</h1>
+        <p class="profile-email">bill.smith@example.com</p>
+        <button onclick="window.location.href='/logout'" class="header-logout-button">
+            <img src="/static/images/icons8-logout-32.png" alt="Logout" class="logout-icon">
+            Log Out
+        </button>
+    </div>
+
+    <div class="profile-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ user.health_stats.weekly_workouts }}</div>
+            <div class="stat-label">Weekly Workouts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ user.health_stats.weight }}kg</div>
+            <div class="stat-label">Current Weight</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ user.health_stats.bmi }}</div>
+            <div class="stat-label">BMI</div>
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2 class="section-title">Personal Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Age</span>
+                <span class="info-value">{{ user.age }} years</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Gender</span>
+                <span class="info-value">{{ user.gender }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Height</span>
+                <span class="info-value">{{ user.height }}cm</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Target Weight</span>
+                <span class="info-value">{{ user.target_weight }}kg</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2 class="section-title">Health Goals</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Weekly Exercise Goal</span>
+                <span class="info-value">{{ user.health_goals.weekly_exercise }} minutes</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Daily Steps Goal</span>
+                <span class="info-value">{{ user.health_goals.daily_steps }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Sleep Goal</span>
+                <span class="info-value">{{ user.health_goals.sleep_hours }} hours</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2 class="section-title">Premium Features</h2>
+        <div class="premium-features">
+            <div class="premium-feature">
+                <i class="fas fa-chart-line"></i>
+                <span>Advanced Analytics</span>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-user-md"></i>
+                <span>Online Doctor Consultations</span>
+            </div>
+            <div class="premium-feature">
+                <i class="fas fa-file-medical"></i>
+                <span>Health Reports</span>
+            </div>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;">
+            <i class="fas fa-crown"></i> Upgrade to Premium
+        </button>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn btn-primary" onclick="editProfile()">
+            <i class="fas fa-edit"></i> Edit Profile
+        </button>
+        <button class="btn btn-secondary" onclick="changePassword()">
+            <i class="fas fa-key"></i> Change Password
+        </button>
+    </div>
+</div>
+
+<script>
+function editProfile() {
+    // 实现编辑个人资料功能
+    console.log('Edit profile clicked');
+}
+
+function changePassword() {
+    // 实现更改密码功能
+    console.log('Change password clicked');
+}
+</script>
+{% endblock %} 

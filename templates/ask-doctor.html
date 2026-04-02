@@ -1,0 +1,514 @@
+{% extends "layout.html" %}
+
+{% block title %}Ask a Doctor - CoreWell{% endblock %}
+
+{% block header %}Ask a Doctor{% endblock %}
+
+{% block styles %}
+<style>
+    .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        height: calc(100vh - 120px);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .chat-header {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        box-shadow: var(--card-shadow);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-lg);
+        min-width: 0;
+    }
+
+    .doctor-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-color);
+    }
+
+    .doctor-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .doctor-name {
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .doctor-specialty {
+        color: #666;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #28a745;
+        margin-right: 8px;
+        display: inline-block;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        min-height: 400px;
+    }
+
+    .message {
+        margin-bottom: var(--spacing-md);
+        display: flex;
+        flex-direction: column;
+        max-width: 80%;
+    }
+
+    .message.user {
+        align-items: flex-end;
+        align-self: flex-end;
+    }
+
+    .message.doctor {
+        align-items: flex-start;
+        align-self: flex-start;
+    }
+
+    .message-content {
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-radius: var(--border-radius);
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .message.user .message-content {
+        background: var(--primary-color);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message.doctor .message-content {
+        background: #f0f2f5;
+        color: var(--text-color);
+        border-bottom-left-radius: 4px;
+    }
+
+    .message-time {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 4px;
+    }
+
+    .quick-questions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+        margin: var(--spacing-md) 0;
+        padding: var(--spacing-md);
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+    }
+
+    .quick-question {
+        background: #f0f2f5;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        color: var(--text-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: normal;
+        text-align: left;
+        max-width: calc(50% - var(--spacing-sm));
+        word-wrap: break-word;
+    }
+
+    .quick-question:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .chat-input-container {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-md);
+        box-shadow: var(--card-shadow);
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: flex-end;
+    }
+
+    .chat-input {
+        flex: 1;
+        border: 2px solid #eee;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-md);
+        font-size: 1rem;
+        resize: none;
+        min-height: 50px;
+        max-height: 150px;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .send-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .send-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .send-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: var(--spacing-sm);
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .typing-dots {
+        display: flex;
+        gap: 3px;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #999;
+        animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+        0%, 60%, 100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-5px);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .chat-container {
+            padding: 10px;
+            height: calc(100vh - 150px);
+        }
+
+        .chat-header {
+            padding: var(--spacing-md);
+        }
+
+        .doctor-avatar {
+            width: 60px;
+            height: 60px;
+        }
+
+        .doctor-name {
+            font-size: 1.1rem;
+        }
+
+        .doctor-specialty {
+            font-size: 0.9rem;
+        }
+
+        .message {
+            max-width: 90%;
+        }
+
+        .quick-question {
+            max-width: 100%;
+            padding: 8px 16px;
+        }
+
+        .chat-input-container {
+            padding: var(--spacing-sm);
+        }
+
+        .send-button {
+            padding: 10px 20px;
+        }
+    }
+
+    .floating-doctor-btn {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        padding: 15px;
+        box-sizing: border-box;
+        z-index: 1000;
+    }
+
+    .floating-doctor-btn img {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 8px;
+    }
+
+    .floating-doctor-btn span {
+        font-size: 14px;
+        text-align: center;
+        line-height: 1.2;
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+
+    .floating-doctor-btn:hover {
+        transform: translateY(-5px);
+        background: var(--primary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .floating-doctor-btn {
+            width: 100px;
+            height: 100px;
+            bottom: 70px;
+            right: 15px;
+            padding: 12px;
+        }
+
+        .floating-doctor-btn img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 6px;
+        }
+
+        .floating-doctor-btn span {
+            font-size: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <img src="{{ url_for('static', filename='images/doctor.png') }}" alt="Doctor" class="doctor-avatar">
+        <div class="doctor-info">
+            <div class="doctor-name">Dr. Sarah Johnson</div>
+            <div class="doctor-specialty">General Practitioner</div>
+        </div>
+        <div>
+            <span class="status-indicator"></span>
+            <span>Online</span>
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        <div class="message doctor">
+            <div class="message-content">Hello! I'm Dr. Sarah Johnson. How can I help you today?</div>
+            <div class="message-time">9:00 AM</div>
+        </div>
+
+        <div class="quick-questions">
+            <button class="quick-question" onclick="sendQuickQuestion('I have a headache, what should I do?')">I have a headache, what should I do?</button>
+            <button class="quick-question" onclick="sendQuickQuestion('How can I improve my sleep?')">How can I improve my sleep?</button>
+            <button class="quick-question" onclick="sendQuickQuestion('What are the symptoms of the flu?')">What are the symptoms of the flu?</button>
+            <button class="quick-question" onclick="sendQuickQuestion('How often should I exercise?')">How often should I exercise?</button>
+        </div>
+    </div>
+
+    <div class="chat-input-container">
+        <textarea class="chat-input" id="messageInput" placeholder="Type your message here..." rows="1"></textarea>
+        <button class="send-button" id="sendButton" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<button class="floating-doctor-btn" onclick="openChat()">
+    <img src="{{ url_for('static', filename='images/doctor.png') }}" alt="Dr. Sarah">
+    <span>Ask Dr. Sarah</span>
+</button>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+    
+    // Send message on Enter (but allow Shift+Enter for new line)
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message) {
+            // Add user message
+            addMessage(message, 'user');
+            
+            // Clear input
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate doctor response after a delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = getDoctorResponse(message);
+                addMessage(response, 'doctor');
+            }, 1500);
+        }
+    }
+    
+    function sendQuickQuestion(question) {
+        messageInput.value = question;
+        sendMessage();
+    }
+    
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = text;
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'message-time';
+        timeDiv.textContent = getCurrentTime();
+        
+        messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(timeDiv);
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        
+        typingDiv.innerHTML = `
+            <span>Dr. Sarah is typing</span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    function getDoctorResponse(message) {
+        // Simple response logic - in a real app, this would connect to a backend service
+        const lowerMessage = message.toLowerCase();
+        
+        if (lowerMessage.includes('headache')) {
+            return "Headaches can have various causes. Try resting in a quiet, dark room, staying hydrated, and taking over-the-counter pain relievers like ibuprofen or acetaminophen. If your headache is severe, persistent, or accompanied by other symptoms like confusion or fever, please seek medical attention.";
+        } else if (lowerMessage.includes('sleep')) {
+            return "To improve your sleep, try maintaining a regular sleep schedule, creating a relaxing bedtime routine, keeping your bedroom cool and dark, avoiding screens before bed, and limiting caffeine and alcohol. Aim for 7-9 hours of sleep per night.";
+        } else if (lowerMessage.includes('flu') || lowerMessage.includes('symptoms')) {
+            return "Common flu symptoms include fever, chills, muscle aches, cough, congestion, runny nose, headaches, and fatigue. The flu typically comes on suddenly and is more severe than a cold. If you suspect you have the flu, rest, stay hydrated, and consider antiviral medications if started within 48 hours of symptoms.";
+        } else if (lowerMessage.includes('exercise')) {
+            return "For most adults, aim for at least 150 minutes of moderate aerobic activity or 75 minutes of vigorous activity each week, along with muscle-strengthening activities on 2 or more days. This can be broken down into 30 minutes of exercise 5 days a week. Start slowly and gradually increase intensity.";
+        } else {
+            return "Thank you for your question. I'd be happy to help with your health concerns. Could you provide more details about your symptoms or what specific advice you're looking for?";
+        }
+    }
+
+    function openChat() {
+        // Implement the logic to open the chat
+        console.log("Chat opened");
+    }
+</script>
+{% endblock %} 

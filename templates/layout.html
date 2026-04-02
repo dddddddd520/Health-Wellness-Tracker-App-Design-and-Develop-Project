@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CoreWell{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #40E0D0;
+            --secondary-color: #48BB78;
+            --text-color: #2D3748;
+            --bg-color: #F7FAFC;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 2rem;
+            --border-radius: 8px;
+            --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 60px; /* 为固定导航栏留出空间 */
+        }
+
+        .layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .header {
+            background: white;
+            padding: var(--spacing-md);
+            box-shadow: var(--card-shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .navbar-logo {
+            width: 2.5rem;
+            height: 2.5rem;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(64, 224, 208, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item span {
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            color: #40E0D0;
+            background: rgba(64, 224, 208, 0.05);
+        }
+
+        .nav-item:hover .nav-icon {
+            opacity: 1;
+        }
+
+        .nav-item.active {
+            color: #40E0D0;
+            background: rgba(64, 224, 208, 0.1);
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+        }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 0.75rem;
+            border-top: 1px solid rgba(64, 224, 208, 0.1);
+            z-index: 1000;
+        }
+
+        .mobile-nav .nav-links {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mobile-nav .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav .nav-link img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-nav .nav-link span {
+            font-size: 0.75rem;
+        }
+
+        .mobile-nav .nav-link:hover,
+        .mobile-nav .nav-link.active {
+            color: #40E0D0;
+        }
+
+        .mobile-nav .nav-link:hover img,
+        .mobile-nav .nav-link.active img {
+            opacity: 1;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-menu a {
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .user-menu a:hover {
+            background: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .user-menu {
+                display: none;
+            }
+
+            .desktop-nav {
+                display: none;
+            }
+
+            .mobile-nav {
+                display: flex;
+            }
+
+            .main-content {
+                margin-bottom: 5rem;
+                padding: var(--spacing-md);
+            }
+
+            body {
+                padding-top: 0;
+                padding-bottom: 60px; /* 为底部导航栏留出空间 */
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: var(--spacing-sm);
+            }
+
+            .user-menu a span {
+                display: none;
+            }
+        }
+
+        /* 主容器样式 */
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0;
+            }
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .notification-btn {
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 5px;
+            background-color: #ff4757;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 15px;
+            text-align: center;
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <div class="layout">
+        {% if not hide_header %}
+        <header class="header">
+            <div class="logo-container">
+                <img src="/static/images/logo-1.png" alt="CoreWell Logo" class="navbar-logo">
+                <span class="logo-text">CoreWell</span>
+            </div>
+            
+            <nav class="desktop-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-dashboard-64.png') }}" alt="Dashboard" class="nav-icon">
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('daily_log') }}" class="nav-item {% if active_page == 'daily_log' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-log-80.png') }}" alt="Daily Log" class="nav-icon">
+                    <span>Daily Log</span>
+                </a>
+                <a href="{{ url_for('insights') }}" class="nav-item {% if active_page == 'insights' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-insight-24.png') }}" alt="Insights" class="nav-icon">
+                    <span>Insights</span>
+                </a>
+                <a href="{{ url_for('reminders') }}" class="nav-item {% if active_page == 'reminders' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-appointment-64.png') }}" alt="Reminders" class="nav-icon">
+                    <span>Reminders</span>
+                </a>
+                <div class="nav-right">
+                    <a href="{{ url_for('notifications') }}" class="nav-item notification-btn">
+                        <img src="{{ url_for('static', filename='images/email.png') }}" alt="Notifications" class="nav-icon">
+                        <span class="notification-badge">3</span>
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="nav-item {% if active_page == 'profile' %}active{% endif %}">
+                        <img src="{{ url_for('static', filename='images/icons8-administrator-male-32.png') }}" alt="Profile" class="nav-icon">
+                        <span>Profile</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="user-menu">
+                {% if user %}
+                <a href="/profile">
+                    <i>👤</i>
+                    <span>{{ user.name }}</span>
+                </a>
+                <a href="/logout" class="btn">Logout</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <nav class="mobile-nav">
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-dashboard-64.png') }}" alt="Dashboard">
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('daily_log') }}" class="nav-link {% if active_page == 'daily_log' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-log-80.png') }}" alt="Daily Log">
+                    <span>Daily Log</span>
+                </a>
+                <a href="{{ url_for('insights') }}" class="nav-link {% if active_page == 'insights' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-insight-24.png') }}" alt="Insights">
+                    <span>Insights</span>
+                </a>
+                <a href="{{ url_for('reminders') }}" class="nav-link {% if active_page == 'reminders' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-appointment-64.png') }}" alt="Reminders">
+                    <span>Reminders</span>
+                </a>
+                <a href="{{ url_for('notifications') }}" class="nav-link">
+                    <img src="{{ url_for('static', filename='images/notification.png') }}" alt="Notifications">
+                    <span>Notifications</span>
+                </a>
+                <a href="{{ url_for('profile') }}" class="nav-link {% if active_page == 'profile' %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='images/icons8-administrator-male-32.png') }}" alt="Profile">
+                    <span>Profile</span>
+                </a>
+            </div>
+        </nav>
+        {% endif %}
+        
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationBtn = document.getElementById('notificationBtn');
+        const mobileNotificationBtn = document.getElementById('mobileNotificationBtn');
+
+        function handleNotificationClick(e) {
+            e.preventDefault();
+            // 这里可以添加显示通知列表的逻辑
+            alert('Notifications will be shown here');
+        }
+
+        notificationBtn.addEventListener('click', handleNotificationClick);
+        mobileNotificationBtn.addEventListener('click', handleNotificationClick);
+    });
+    </script>
+</body>
+</html> 

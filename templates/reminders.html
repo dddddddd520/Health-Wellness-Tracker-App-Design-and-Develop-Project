@@ -1,0 +1,288 @@
+{% extends "layout.html" %}
+
+{% block title %}Reminders - LifePulse{% endblock %}
+
+{% block header %}Reminders{% endblock %}
+
+{% block styles %}
+<style>
+    .reminders-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .add-reminder {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+        box-shadow: var(--card-shadow);
+    }
+
+    .reminder-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 0.8rem;
+        border: 2px solid #eee;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .reminders-list {
+        display: grid;
+        gap: var(--spacing-md);
+    }
+
+    .reminder-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        box-shadow: var(--card-shadow);
+        transition: transform 0.2s;
+    }
+
+    .reminder-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .reminder-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .reminder-details {
+        flex: 1;
+    }
+
+    .reminder-details h3 {
+        margin-bottom: 0.25rem;
+    }
+
+    .reminder-details p {
+        color: #666;
+    }
+
+    .reminder-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-icon:hover {
+        background-color: #eee;
+    }
+
+    .btn-add {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+    }
+
+    .reminder-filters {
+        display: flex;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 20px;
+        background: none;
+        color: var(--primary-color);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reminders-container">
+    <div class="add-reminder">
+        <h2>Add New Reminder</h2>
+        <form id="reminder-form" class="reminder-form" onsubmit="handleAddReminder(event)">
+            <div class="form-group">
+                <label for="reminder-type">Type</label>
+                <select id="reminder-type" required>
+                    <option value="">Select type</option>
+                    <option value="medication">Medication</option>
+                    <option value="exercise">Exercise</option>
+                    <option value="appointment">Appointment</option>
+                    <option value="water">Water</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="reminder-time">Time</label>
+                <input type="time" id="reminder-time" required>
+            </div>
+            <div class="form-group">
+                <label for="reminder-description">Description</label>
+                <input type="text" id="reminder-description" required>
+            </div>
+            <div class="form-group">
+                <label for="reminder-repeat">Repeat</label>
+                <select id="reminder-repeat" required>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="none">Don't repeat</option>
+                </select>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <button type="submit" class="btn-add">Add Reminder</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="reminder-filters">
+        <button class="filter-btn active" onclick="filterReminders('all')">All</button>
+        <button class="filter-btn" onclick="filterReminders('medication')">Medication</button>
+        <button class="filter-btn" onclick="filterReminders('exercise')">Exercise</button>
+        <button class="filter-btn" onclick="filterReminders('appointment')">Appointments</button>
+    </div>
+
+    <div class="reminders-list">
+        {% for reminder in reminders %}
+        <div class="reminder-card" data-type="{{ reminder.type }}">
+            <div class="reminder-icon">{{ reminder.icon }}</div>
+            <div class="reminder-details">
+                <h3>{{ reminder.description }}</h3>
+                <p>{{ reminder.time }}</p>
+            </div>
+            <div class="reminder-actions">
+                <button class="btn-icon" onclick="editReminder({{ reminder.id }})">✏️</button>
+                <button class="btn-icon" onclick="deleteReminder({{ reminder.id }})">🗑️</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function handleAddReminder(event) {
+        event.preventDefault();
+        const type = document.getElementById('reminder-type').value;
+        const time = document.getElementById('reminder-time').value;
+        const description = document.getElementById('reminder-description').value;
+        const repeat = document.getElementById('reminder-repeat').value;
+
+        // Send data to server
+        fetch('/api/add-reminder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                type,
+                time,
+                description,
+                repeat,
+                active: true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Reminder added successfully!');
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to add reminder');
+        });
+    }
+
+    function filterReminders(type) {
+        // Update active filter button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.toLowerCase() === type || (type === 'all' && btn.textContent === 'All')) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Filter reminder cards
+        document.querySelectorAll('.reminder-card').forEach(card => {
+            if (type === 'all' || card.dataset.type === type) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function editReminder(id) {
+        // Add your edit logic here
+        alert('Edit reminder ' + id);
+    }
+
+    function deleteReminder(id) {
+        if (confirm('Are you sure you want to delete this reminder?')) {
+            // Add your delete logic here
+            alert('Delete reminder ' + id);
+        }
+    }
+</script>
+{% endblock %} 
